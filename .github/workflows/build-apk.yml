@@ -18,24 +18,18 @@ jobs:
         with:
           channel: stable
 
-      - name: Create Flutter project
+      - name: Create full Flutter project
         run: |
           flutter create wealthassure_app
           ls -la wealthassure_app
 
-      - name: Copy your code and pubspec
+      - name: Copy your Dart code and pubspec
         run: |
           rm -rf wealthassure_app/lib/*
           cp -r repo/lib/* wealthassure_app/lib/
           cp repo/pubspec.yaml wealthassure_app/
           cd wealthassure_app
           flutter pub get
-
-      - name: Change app name in Android manifest
-        run: |
-          cd wealthassure_app/android/app/src/main
-          sed -i 's/wealthesure_app/Wealth Assure/g' AndroidManifest.xml
-          sed -i 's/android:label=".*"/android:label="Wealth Assure"/' AndroidManifest.xml
 
       - name: Build APK
         run: |
