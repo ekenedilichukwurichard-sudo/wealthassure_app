@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/adapter.dart';
 
 class ApiService {
   static const String domain = 'quantumxvault.net';
@@ -26,7 +26,7 @@ class ApiService {
       final response = await dio.post(
         '/login.php',
         data: {'username': username, 'password': password},
-        options: Options(contentType: Headers.jsonContentType),
+        options: Options(contentType: 'application/json'),
       );
       if (response.statusCode == 200) {
         return response.data;
