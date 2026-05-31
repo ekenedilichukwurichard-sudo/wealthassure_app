@@ -23,17 +23,6 @@ jobs:
           flutter create wealthassure_app
           ls -la wealthassure_app
 
-      - name: Add internet permission to AndroidManifest.xml
-        run: |
-          MANIFEST="wealthassure_app/android/app/src/main/AndroidManifest.xml"
-          # Check if permission already exists, if not, add it before the <application> tag
-          if ! grep -q "android.permission.INTERNET" "$MANIFEST"; then
-            sed -i '/<application/a\    <uses-permission android:name="android.permission.INTERNET" />' "$MANIFEST"
-            echo "Internet permission added."
-          else
-            echo "Internet permission already present."
-          fi
-
       - name: Copy your Dart code and pubspec
         run: |
           rm -rf wealthassure_app/lib/*
