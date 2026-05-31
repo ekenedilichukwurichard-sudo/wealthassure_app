@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
-import 'profile_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -9,39 +8,37 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  String _userName = '';
-  String _userEmail = '';
-  String _userRole = '';
+  Map<String, dynamic> _profile = {};
   bool _isLoading = true;
+  String _error = '';
 
   @override
   void initState() {
     super.initState();
-    _loadProfile();
+    _loadData();
   }
 
-  Future<void> _loadProfile() async {
+  Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null) {
       _logout();
       return;
     }
-
     try {
-      final response = await ApiService.getProfile(token);
-      if (response['success'] == true) {
+      final data = await ApiService.getProfile(token);
+      if (data['success'] == true) {
         setState(() {
-          _userName = response['user']['username'];
-          _userEmail = response['user']['email'];
-          _userRole = response['user']['role'];
+          _profile = data;
           _isLoading = false;
         });
       } else {
-        _logout();
+        _error = data['message'] ?? 'Failed to load profile';
+        _isLoading = false;
       }
     } catch (e) {
-      _logout();
+      _error = e.toString();
+      _isLoading = false;
     }
   }
 
@@ -53,9 +50,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (_error.isNotEmpty) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Error: $_error'),
+              ElevatedButton(
+                onPressed: () => _loadData(),
+                child: Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final user = _profile['user'];
+    final financial = _profile['financial'];
+    final transactions = _profile['transactions'] as List? ?? [];
+    final investments = _profile['active_investments'] as List? ?? [];
+    final cryptoCoins = _profile['crypto_coins'] as List? ?? [];
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dashboard'),
+        title: Text('Wealth Assure'),
         backgroundColor: Color(0xFF0A1120),
         actions: [
           IconButton(
@@ -64,67 +89,112 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Card(
-                    child: ListTile(
-                      leading: Icon(Icons.account_circle, size: 50, color: Color(0xFF2563EB)),
-                      title: Text('Welcome, $_userName'),
-                      subtitle: Text('Role: $_userRole'),
-                      trailing: IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => ProfileScreen()),
-                          ).then((_) => _loadProfile());
-                        },
-                      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Balance Card
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Total Balance', style: TextStyle(color: Colors.grey[600])),
+                    Text(
+                      '£${user['balance']?.toStringAsFixed(2) ?? '0.00'}',
+                      style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  Text('Quick Actions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 10),
-                  GridView.count(
-                    shrinkWrap: true,
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    children: [
-                      _buildActionCard(Icons.account_balance_wallet, 'Balance', '\$0.00'),
-                      _buildActionCard(Icons.history, 'Transactions', 'View'),
-                      _buildActionCard(Icons.cloud_upload, 'Deposit', 'Add Funds'),
-                      _buildActionCard(Icons.cloud_download, 'Withdraw', 'Request'),
-                    ],
-                  ),
-                ],
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        _buildStat('Deposits', '£${financial['total_deposits']?.toStringAsFixed(2) ?? '0.00'}'),
+                        SizedBox(width: 16),
+                        _buildStat('Withdrawn', '£${financial['total_withdraw']?.toStringAsFixed(2) ?? '0.00'}'),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
+            SizedBox(height: 20),
+
+            // Crypto Coins
+            Text('Your Crypto', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 8),
+            if (cryptoCoins.isEmpty)
+              Center(child: Text('No crypto assets'))
+            else
+              ...cryptoCoins.map((coin) => Card(
+                margin: EdgeInsets.only(bottom: 8),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Color(0xFF2563EB),
+                    child: Text(coin['crypto_symbol']?.substring(0,1) ?? '?'),
+                  ),
+                  title: Text(coin['crypto_name'] ?? coin['symbol']),
+                  subtitle: Text('Balance: ${coin['quantity']?.toStringAsFixed(8) ?? '0'} ${coin['crypto_symbol']}'),
+                  trailing: Text('≈ £${coin['current_value']?.toStringAsFixed(2) ?? '0.00'}'),
+                ),
+              )),
+
+            SizedBox(height: 20),
+
+            // Recent Transactions
+            Text('Recent Transactions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 8),
+            if (transactions.isEmpty)
+              Center(child: Text('No transactions'))
+            else
+              ...transactions.map((tx) => ListTile(
+                leading: Icon(
+                  tx['type'] == 'deposit' ? Icons.arrow_downward : Icons.arrow_upward,
+                  color: tx['type'] == 'deposit' ? Colors.green : Colors.red,
+                ),
+                title: Text(tx['description'] ?? 'Transaction'),
+                subtitle: Text(tx['created_at']),
+                trailing: Text(
+                  tx['type'] == 'deposit' ? '+£${tx['amount']}' : '-£${tx['amount']}',
+                  style: TextStyle(
+                    color: tx['type'] == 'deposit' ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )),
+
+            SizedBox(height: 20),
+
+            // Active Investments
+            Text('Active Investments', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 8),
+            if (investments.isEmpty)
+              Center(child: Text('No active investments'))
+            else
+              ...investments.map((inv) => Card(
+                margin: EdgeInsets.only(bottom: 8),
+                child: ListTile(
+                  title: Text(inv['plan_name'] ?? 'Investment Plan'),
+                  subtitle: Text('Invested: £${inv['invested_amount']}'),
+                  trailing: Text('ROI: ${inv['daily_roi_percent']}% daily'),
+                ),
+              )),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildActionCard(IconData icon, String title, String value) {
-    return Card(
-      child: InkWell(
-        onTap: () {},
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 40, color: Color(0xFF2563EB)),
-              SizedBox(height: 8),
-              Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 4),
-              Text(value, style: TextStyle(color: Colors.grey[600])),
-            ],
-          ),
-        ),
+  Widget _buildStat(String label, String value) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: TextStyle(color: Colors.grey[600])),
+          Text(value, style: TextStyle(fontWeight: FontWeight.w600)),
+        ],
       ),
     );
   }
