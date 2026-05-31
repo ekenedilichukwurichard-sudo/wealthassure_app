@@ -27,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
         await prefs.setString('token', user.token);
         await prefs.setInt('user_id', user.id);
         await prefs.setString('name', user.name);
-        await prefs.setDouble('balance', user.balance);
+        // DO NOT store balance here – it will be fetched from profile API
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
@@ -87,7 +87,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // W logo (from your website)
                     Container(
                       width: 80,
                       height: 80,
