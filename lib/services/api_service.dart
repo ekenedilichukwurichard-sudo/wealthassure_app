@@ -1,19 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
 
 class ApiService {
   static const String baseUrl = 'https://quantumxvault.net/api';
 
-  // Create a custom HttpClient that ignores SSL errors
-  static Future<http.Client> _getClient() async {
-    final HttpClient httpClient = HttpClient()
-      ..badCertificateCallback = (cert, host, port) => true; // ⬅️ Accept all certificates
-    return http.IOClient(httpClient);
-  }
-
   static Future<Map<String, dynamic>> login(String username, String password) async {
-    final client = await _getClient();
+    final HttpClient httpClient = HttpClient()
+      ..badCertificateCallback = (cert, host, port) => true;
+    final client = IOClient(httpClient);
+
     try {
       final response = await client.post(
         Uri.parse('$baseUrl/login.php'),
@@ -32,7 +29,10 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> getProfile(String token) async {
-    final client = await _getClient();
+    final HttpClient httpClient = HttpClient()
+      ..badCertificateCallback = (cert, host, port) => true;
+    final client = IOClient(httpClient);
+
     try {
       final response = await client.get(
         Uri.parse('$baseUrl/profile.php'),
