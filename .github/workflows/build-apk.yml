@@ -9,11 +9,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # avoids Node20 deprecation warning
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-      - name: Checkout code
+      - name: Checkout code (your lib and pubspec)
         uses: actions/checkout@v4
+        with:
+          path: repo
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -21,14 +23,26 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Install dependencies
-        run: flutter pub get
+      - name: Create new Flutter project
+        run: |
+          flutter create wealthassure_app
+          ls -la wealthassure_app
+
+      - name: Replace with your code
+        run: |
+          rm -rf wealthassure_app/lib/*
+          cp -r repo/lib/* wealthassure_app/lib/
+          cp repo/pubspec.yaml wealthassure_app/
+          cd wealthassure_app
+          flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release
+        run: |
+          cd wealthassure_app
+          flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: wealthassure-app
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: wealthassure_app/build/app/outputs/flutter-apk/app-release.apk
