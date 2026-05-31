@@ -18,18 +18,34 @@ jobs:
         with:
           channel: stable
 
-      - name: Create full Flutter project
+      - name: Create Flutter project
         run: |
           flutter create wealthassure_app
           ls -la wealthassure_app
 
-      - name: Copy your Dart code and pubspec
+      - name: Download logo from your website
+        run: |
+          mkdir -p wealthassure_app/assets
+          curl -o wealthassure_app/assets/logo.png https://quantumxvault.net/assets/uploads/logo/logo.png
+
+      - name: Copy your code and pubspec
         run: |
           rm -rf wealthassure_app/lib/*
           cp -r repo/lib/* wealthassure_app/lib/
           cp repo/pubspec.yaml wealthassure_app/
           cd wealthassure_app
           flutter pub get
+
+      - name: Generate launcher icons
+        run: |
+          cd wealthassure_app
+          flutter pub run flutter_launcher_icons:main
+
+      - name: Change app name in Android manifest
+        run: |
+          cd wealthassure_app/android/app/src/main
+          sed -i 's/wealthesure_app/Wealth Assure/g' AndroidManifest.xml
+          sed -i 's/android:label=".*"/android:label="Wealth Assure"/' AndroidManifest.xml
 
       - name: Build APK
         run: |
