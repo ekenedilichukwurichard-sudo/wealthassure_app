@@ -18,12 +18,12 @@ jobs:
         with:
           channel: stable
 
-      - name: Create Flutter project
+      - name: Create full Flutter project
         run: |
           flutter create wealthassure_app
           ls -la wealthassure_app
 
-      - name: Copy your code into the project
+      - name: Copy your code
         run: |
           rm -rf wealthassure_app/lib/*
           cp -r repo/lib/* wealthassure_app/lib/
