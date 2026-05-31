@@ -62,13 +62,32 @@ class _SplashScreenState extends State<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.security, size: 100, color: Colors.white),
-              SizedBox(height: 20),
+              // W logo (same as login screen)
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(colors: [Color(0xFF6D28D9), Color(0xFF3B82F6)]),
+                ),
+                child: Center(
+                  child: Text(
+                    'W',
+                    style: TextStyle(fontSize: 56, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                ),
+              ),
+              SizedBox(height: 24),
               Text(
                 'WEALTHASSURE',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.5),
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 16),
+              Text(
+                'Secure • Fast • Reliable',
+                style: TextStyle(fontSize: 16, color: Colors.grey[400]),
+              ),
+              SizedBox(height: 40),
               CircularProgressIndicator(color: Colors.white),
             ],
           ),
