@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../services/api_service.dart';
 import '../models/user.dart';
 import 'dashboard_screen.dart';
@@ -51,13 +50,20 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _openRegisterPage() async {
-    final Uri url = Uri.parse('https://quantumxvault.net/auth/register.php');
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else {
-      _showError('Could not open registration page');
-    }
+  void _showRegisterInfo() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Create an Account'),
+        content: Text('Please visit our website to register:\n\nhttps://quantumxvault.net/auth/register.php'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -82,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Logo (W from your website)
+                    // Logo (W)
                     Container(
                       width: 80,
                       height: 80,
@@ -147,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               SizedBox(height: 12),
                               TextButton(
-                                onPressed: _openRegisterPage,
+                                onPressed: _showRegisterInfo,
                                 child: Text(
                                   'Don’t have an account? Create one',
                                   style: TextStyle(color: Color(0xFF8B5CF6)),
