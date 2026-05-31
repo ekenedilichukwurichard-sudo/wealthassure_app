@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../services/api_service.dart';
 import '../models/user.dart';
 import 'dashboard_screen.dart';
@@ -14,6 +14,22 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+
+  final String _logoSvg = '''
+<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6D28D9"/>
+      <stop offset="50%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+  </defs>
+  <circle cx="20" cy="20" r="18" stroke="url(#logoGradient)" stroke-width="2" fill="none"/>
+  <path d="M12 14L16 26L20 18L24 26L28 14" stroke="url(#logoGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="14" cy="16" r="1.5" fill="url(#logoGradient)"/>
+  <circle cx="26" cy="16" r="1.5" fill="url(#logoGradient)"/>
+</svg>
+''';
 
   Future<void> _login() async {
     setState(() => _isLoading = true);
@@ -49,13 +65,20 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _openRegisterPage() async {
-    const url = 'https://quantumxvault.net/auth/register.php';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-    } else {
-      _showError('Could not open registration page');
-    }
+  void _showRegisterInfo() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Create an Account'),
+        content: Text('Please visit our website to register:\n\nhttps://quantumxvault.net/auth/register.php'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -80,8 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Placeholder icon instead of SVG (build will work)
-                    Icon(Icons.account_balance_wallet, size: 80, color: Colors.white),
+                    SvgPicture.string(_logoSvg, width: 80, height: 80),
                     SizedBox(height: 16),
                     Text(
                       'WEALTH ASSURE',
@@ -132,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               SizedBox(height: 12),
                               TextButton(
-                                onPressed: _openRegisterPage,
+                                onPressed: _showRegisterInfo,
                                 child: Text(
                                   'Don’t have an account? Create one',
                                   style: TextStyle(color: Color(0xFF8B5CF6)),
