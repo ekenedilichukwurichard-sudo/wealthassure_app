@@ -4,6 +4,8 @@ class User {
   final String email;
   final String role;
   final String token;
+  final double balance;
+  final String kycStatus;
 
   User({
     required this.id,
@@ -11,6 +13,8 @@ class User {
     required this.email,
     required this.role,
     required this.token,
+    required this.balance,
+    required this.kycStatus,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -20,6 +24,8 @@ class User {
       email: json['email'],
       role: json['role'],
       token: json['token'],
+      balance: (json['balance'] ?? 0).toDouble(),
+      kycStatus: json['kyc_status'] ?? 'pending',
     );
   }
 }
