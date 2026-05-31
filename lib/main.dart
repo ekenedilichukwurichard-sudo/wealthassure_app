@@ -9,7 +9,7 @@ class WealthAssureApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'WealthAssure',
+      title: 'Wealth Assure',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -62,7 +62,6 @@ class _SplashScreenState extends State<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // W logo (same as login screen)
               Container(
                 width: 100,
                 height: 100,
@@ -79,7 +78,7 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
               SizedBox(height: 24),
               Text(
-                'WEALTHASSURE',
+                'WEALTH ASSURE',
                 style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.5),
               ),
               SizedBox(height: 16),
