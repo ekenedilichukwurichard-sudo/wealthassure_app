@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/api_service.dart';
 import '../models/user.dart';
 import 'dashboard_screen.dart';
@@ -38,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _showError(response['message'] ?? 'Login failed');
       }
     } catch (e) {
-      _showError('Network error. Check your connection.');
+      _showError('Connection error: ${e.toString()}');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -48,6 +49,15 @@ class _LoginScreenState extends State<LoginScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(msg), backgroundColor: Colors.red),
     );
+  }
+
+  Future<void> _openRegisterPage() async {
+    final Uri url = Uri.parse('https://quantumxvault.net/auth/register.php');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      _showError('Could not open registration page');
+    }
   }
 
   @override
@@ -72,12 +82,29 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Logo (W from your website)
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(colors: [Color(0xFF6D28D9), Color(0xFF3B82F6)]),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'W',
+                          style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
                     Text(
                       'WEALTHASSURE',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF2563EB),
+                        letterSpacing: 1.2,
                       ),
                     ),
                     SizedBox(height: 8),
@@ -107,14 +134,26 @@ class _LoginScreenState extends State<LoginScreen> {
                     SizedBox(height: 24),
                     _isLoading
                         ? CircularProgressIndicator()
-                        : ElevatedButton(
-                            onPressed: _login,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF2563EB),
-                              minimumSize: Size(double.infinity, 50),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            ),
-                            child: Text('ACCESS DASHBOARD', style: TextStyle(fontSize: 16)),
+                        : Column(
+                            children: [
+                              ElevatedButton(
+                                onPressed: _login,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF2563EB),
+                                  minimumSize: Size(double.infinity, 50),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                ),
+                                child: Text('ACCESS DASHBOARD', style: TextStyle(fontSize: 16)),
+                              ),
+                              SizedBox(height: 12),
+                              TextButton(
+                                onPressed: _openRegisterPage,
+                                child: Text(
+                                  'Don’t have an account? Create one',
+                                  style: TextStyle(color: Color(0xFF8B5CF6)),
+                                ),
+                              ),
+                            ],
                           ),
                   ],
                 ),
