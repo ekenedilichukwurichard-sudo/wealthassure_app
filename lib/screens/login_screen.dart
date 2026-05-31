@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/api_service.dart';
@@ -15,22 +14,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
-
-  final String _logoSvg = '''
-<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6D28D9"/>
-      <stop offset="50%" stop-color="#8B5CF6"/>
-      <stop offset="100%" stop-color="#3B82F6"/>
-    </linearGradient>
-  </defs>
-  <circle cx="20" cy="20" r="18" stroke="url(#logoGradient)" stroke-width="2" fill="none"/>
-  <path d="M12 14L16 26L20 18L24 26L28 14" stroke="url(#logoGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <circle cx="14" cy="16" r="1.5" fill="url(#logoGradient)"/>
-  <circle cx="26" cy="16" r="1.5" fill="url(#logoGradient)"/>
-</svg>
-''';
 
   Future<void> _login() async {
     setState(() => _isLoading = true);
@@ -97,7 +80,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SvgPicture.string(_logoSvg, width: 80, height: 80),
+                    // Placeholder icon instead of SVG (build will work)
+                    Icon(Icons.account_balance_wallet, size: 80, color: Colors.white),
                     SizedBox(height: 16),
                     Text(
                       'WEALTH ASSURE',
