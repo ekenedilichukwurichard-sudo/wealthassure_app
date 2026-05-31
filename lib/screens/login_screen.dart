@@ -16,20 +16,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _login() async {
     setState(() => _isLoading = true);
-
     try {
       final response = await ApiService.login(
         _usernameController.text.trim(),
         _passwordController.text.trim(),
       );
-
       if (response['success'] == true) {
         final user = User.fromJson(response);
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', user.token);
         await prefs.setInt('user_id', user.id);
         await prefs.setString('name', user.name);
-
+        await prefs.setDouble('balance', user.balance);
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => DashboardScreen()),
@@ -38,9 +37,9 @@ class _LoginScreenState extends State<LoginScreen> {
         _showError(response['message'] ?? 'Login failed');
       }
     } catch (e) {
-      _showError('Connection error: ${e.toString()}');
+      _showError(e.toString());
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -88,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Logo (W)
+                    // W logo (from your website)
                     Container(
                       width: 80,
                       height: 80,
@@ -105,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'WEALTHASSURE',
+                      'WEALTH ASSURE',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
