@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/api_service.dart';
 import '../models/user.dart';
 import 'dashboard_screen.dart';
@@ -65,20 +66,13 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _showRegisterInfo() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Create an Account'),
-        content: Text('Please visit our website to register:\n\nhttps://quantumxvault.net/auth/register.php'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('OK'),
-          ),
-        ],
-      ),
-    );
+  Future<void> _openRegisterPage() async {
+    const url = 'https://quantumxvault.net/auth/register.php';
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } else {
+      _showError('Could not open registration page');
+    }
   }
 
   @override
@@ -154,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               SizedBox(height: 12),
                               TextButton(
-                                onPressed: _showRegisterInfo,
+                                onPressed: _openRegisterPage,
                                 child: Text(
                                   'Don’t have an account? Create one',
                                   style: TextStyle(color: Color(0xFF8B5CF6)),
