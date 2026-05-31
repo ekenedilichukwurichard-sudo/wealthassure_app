@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
@@ -30,6 +31,22 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final String _logoSvg = '''
+<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6D28D9"/>
+      <stop offset="50%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+  </defs>
+  <circle cx="20" cy="20" r="18" stroke="url(#logoGradient)" stroke-width="2" fill="none"/>
+  <path d="M12 14L16 26L20 18L24 26L28 14" stroke="url(#logoGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="14" cy="16" r="1.5" fill="url(#logoGradient)"/>
+  <circle cx="26" cy="16" r="1.5" fill="url(#logoGradient)"/>
+</svg>
+''';
+
   @override
   void initState() {
     super.initState();
@@ -62,20 +79,7 @@ class _SplashScreenState extends State<SplashScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(colors: [Color(0xFF6D28D9), Color(0xFF3B82F6)]),
-                ),
-                child: Center(
-                  child: Text(
-                    'W',
-                    style: TextStyle(fontSize: 56, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                ),
-              ),
+              SvgPicture.string(_logoSvg, width: 100, height: 100),
               SizedBox(height: 24),
               Text(
                 'WEALTH ASSURE',
