@@ -31,6 +31,14 @@ jobs:
           cd wealthassure_app
           flutter pub get
 
+      - name: Add internet permission (if missing)
+        run: |
+          MANIFEST="wealthassure_app/android/app/src/main/AndroidManifest.xml"
+          if ! grep -q "android.permission.INTERNET" "$MANIFEST"; then
+            sed -i '/<application>/i\    <uses-permission android:name="android.permission.INTERNET" />' "$MANIFEST"
+            echo "Internet permission added."
+          fi
+
       - name: Build APK
         run: |
           cd wealthassure_app
