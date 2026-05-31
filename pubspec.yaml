@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   shared_preferences: ^2.2.2
-  dio: ^5.4.0   # <-- add this
+  dio: ^5.4.0
 
 flutter:
   uses-material-design: true
