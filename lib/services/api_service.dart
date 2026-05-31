@@ -19,7 +19,7 @@ class ApiService {
       if (response.statusCode == 200) {
         return jsonDecode(responseBody);
       } else {
-        throw Exception('Login failed: ${response.statusCode}');
+        throw Exception('Login failed: ${response.statusCode} - $responseBody');
       }
     } finally {
       client.close();
@@ -39,7 +39,7 @@ class ApiService {
       if (response.statusCode == 200) {
         return jsonDecode(responseBody);
       } else {
-        throw Exception('Profile error: ${response.statusCode}');
+        throw Exception('Profile error: ${response.statusCode} - $responseBody');
       }
     } finally {
       client.close();
