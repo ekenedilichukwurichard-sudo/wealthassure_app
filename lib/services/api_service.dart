@@ -1,57 +1,48 @@
-import 'package:dio/dio.dart';
-import 'package:dio/adapter.dart';
+import 'dart:convert';
+import 'dart:io';
 
 class ApiService {
   static const String domain = 'quantumxvault.net';
   static const String serverIp = '82.25.96.101';
 
-  static Dio _createDio() {
-    final dio = Dio(BaseOptions(
-      baseUrl: 'https://$serverIp/api',
-      connectTimeout: Duration(seconds: 15),
-      receiveTimeout: Duration(seconds: 15),
-      headers: {'Host': domain},
-    ));
-    // Bypass SSL certificate errors
-    (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
-      client.badCertificateCallback = (cert, host, port) => true;
-      return client;
-    };
-    return dio;
-  }
-
   static Future<Map<String, dynamic>> login(String username, String password) async {
-    final dio = _createDio();
+    final client = HttpClient()
+      ..badCertificateCallback = (cert, host, port) => true;
     try {
-      final response = await dio.post(
-        '/login.php',
-        data: {'username': username, 'password': password},
-        options: Options(contentType: 'application/json'),
-      );
+      final url = Uri(scheme: 'https', host: serverIp, path: '/api/login.php');
+      final request = await client.postUrl(url);
+      request.headers.add('Content-Type', 'application/json');
+      request.headers.add('Host', domain);
+      request.write(jsonEncode({'username': username, 'password': password}));
+      final response = await request.close();
+      final responseBody = await response.transform(utf8.decoder).join();
       if (response.statusCode == 200) {
-        return response.data;
+        return jsonDecode(responseBody);
       } else {
         throw Exception('Login failed: ${response.statusCode}');
       }
-    } catch (e) {
-      throw Exception('Login error: $e');
+    } finally {
+      client.close();
     }
   }
 
   static Future<Map<String, dynamic>> getProfile(String token) async {
-    final dio = _createDio();
+    final client = HttpClient()
+      ..badCertificateCallback = (cert, host, port) => true;
     try {
-      final response = await dio.get(
-        '/profile.php',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
-      );
+      final url = Uri(scheme: 'https', host: serverIp, path: '/api/profile.php');
+      final request = await client.getUrl(url);
+      request.headers.add('Authorization', 'Bearer $token');
+      request.headers.add('Host', domain);
+      final response = await request.close();
+      final responseBody = await response.transform(utf8.decoder).join();
       if (response.statusCode == 200) {
-        return response.data;
+        return jsonDecode(responseBody);
       } else {
         throw Exception('Profile error: ${response.statusCode}');
       }
-    } catch (e) {
-      throw Exception('Profile error: $e');
+    } finally {
+      client.close();
     }
   }
 }
