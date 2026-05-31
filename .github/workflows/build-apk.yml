@@ -23,7 +23,7 @@ jobs:
           flutter create wealthassure_app
           ls -la wealthassure_app
 
-      - name: Copy your Dart code and pubspec
+      - name: Copy your code
         run: |
           rm -rf wealthassure_app/lib/*
           cp -r repo/lib/* wealthassure_app/lib/
